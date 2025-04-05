@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>🎵 心情音樂推薦</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>🎧 根據你的心情推薦音樂</h1>
+
+  <p>請輸入你的心情（如：開心、放鬆、失落、努力、想跳舞）：</p>
+  <input type="text" id="moodInput" placeholder="例如：開心" />
+  <button onclick="recommendMusic()">推薦音樂</button>
+
+  <h2>🎶 推薦給你：</h2>
+  <p id="musicLink">（尚未推薦）</p>
+
+  <h2>📜 最近的推薦紀錄</h2>
+  <ul id="historyList"></ul>
+
+  <h2>📊 心情排行榜</h2>
+  <canvas id="moodChart" width="400" height="250"></canvas>
+
+  <h3>🧪 主控台 Console</h3>
+  <pre id="customConsole"></pre>
+
+  <!-- ✅ Firebase CDN v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
+
