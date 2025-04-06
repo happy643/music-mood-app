@@ -1,5 +1,4 @@
-
-// ✅ 請替換成你自己的 Firebase 設定
+// ✅ Firebase 初始化
 const firebaseConfig = {
   apiKey: "AIzaSyA8Rt8oTApoAp3Hlz4UGzqQ5OwjZcpYZQg",
   authDomain: "music-mood-app-fb90b.firebaseapp.com",
@@ -13,6 +12,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+// ✅ YouTube 音樂推薦清單
 const moodMusicMap = {
   "開心": "https://youtu.be/ZbZSe6N_BXs",
   "放鬆": "https://youtu.be/2OEL4P1Rz04",
@@ -21,6 +21,7 @@ const moodMusicMap = {
   "想跳舞": "https://youtu.be/CevxZvSJLk8"
 };
 
+// ✅ 匿名登入
 auth.signInAnonymously()
   .then(() => {
     logToConsole("✅ 匿名登入成功！");
@@ -29,6 +30,7 @@ auth.signInAnonymously()
   })
   .catch(err => logToConsole(`❌ 匿名登入失敗：${err.message}`));
 
+// ✅ 推薦音樂功能
 function recommendMusic() {
   const mood = document.getElementById("moodInput").value.trim();
   const link = moodMusicMap[mood];
@@ -60,6 +62,7 @@ function recommendMusic() {
   }
 }
 
+// ✅ 載入歷史紀錄
 function loadHistory() {
   const list = document.getElementById("historyList");
   list.innerHTML = "";
@@ -81,6 +84,7 @@ function loadHistory() {
     .catch(err => logToConsole(`❌ 歷史載入失敗：${err.message}`));
 }
 
+// ✅ 製作心情排行榜
 function loadMoodChart() {
   db.collection("mood_music")
     .get()
@@ -116,10 +120,65 @@ function loadMoodChart() {
     .catch(err => logToConsole(`❌ 排行榜載入失敗：${err.message}`));
 }
 
+// ✅ 自訂主控台輸出
 function logToConsole(msg) {
   const box = document.getElementById("customConsole");
   const time = new Date().toLocaleTimeString();
   box.textContent += `[${time}] ${msg}\n`;
   box.scrollTop = box.scrollHeight;
 }
+
+// ✅ Apple Watch 自動播放 mp3（本地音檔）
+function playMusicForMood(mood) {
+  const moodMp3Map = {
+    "開心": ["happy1.mp3", "happy2.mp3"],
+    "難過": ["sad1.mp3", "sad2.mp3"],
+    "放鬆": ["relax1.mp3", "relax2.mp3"],
+    "焦慮": ["anxious1.mp3", "anxious2.mp3"]
+  };
+
+  const audioElement = document.getElementById("moodAudio");
+  const options = moodMp3Map[mood] || ["default.mp3"];
+  const selected = options[Math.floor(Math.random() * options.length)];
+
+  document.getElementById("nowPlaying").innerText = `🎵 正在播放：${selected}`;
+  audioElement.src = `music/${selected}`;
+  audioElement.play();
+  logToConsole(`🎧 偵測到心情「${mood}」，正在播放：${selected}`);
+
+  db.collection("mood_history").add({
+    mood: mood,
+    file: selected,
+    timestamp: new Date()
+  });
+}
+
+// ✅ 監聽 Apple Watch 上傳的心情
+function listenToWatchMood() {
+  db.collection("watchMood")
+    .orderBy("timestamp", "desc")
+    .limit(1)
+    .onSnapshot((snapshot) => {
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.mood) {
+          playMusicForMood(data.mood);
+        }
+      });
+    });
+}
+
+// ✅ 頁面載入時自動執行
+window.onload = function () {
+  const storedName = localStorage.getItem("userName");
+  const greetingElement = document.getElementById("greeting");
+  const nameInput = document.getElementById("nameInput");
+
+  if (storedName) {
+    greetingElement.innerText = `哈囉，${storedName}，歡迎回來 😄`;
+    nameInput.value = storedName;
+  }
+
+  listenToWatchMood(); // Apple Watch 音樂即時播放
+};
 
